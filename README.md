@@ -1,3 +1,3 @@
-# omar-scdf-aggregator
+# omar-scdf-downloader
 
-Receives a message from a omar-sqs-notifier.  Checks the given S3 bucket for the configured files, and drops the message, or send an aggregate message to the next SCDF application in the chain.
+Receives a message from the omar-scdf-aggregator and downloads the files from that message and puts it on the scdf server.  
