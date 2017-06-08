@@ -8,8 +8,9 @@ buildscript {
 	}
 	repositories {
 		mavenLocal()
-		maven { url "${ossimMavenProxy}" }
+	//	maven { url "${ossimMavenProxy}" }
 		maven { url "https://repo.grails.org/grails/core" }
+		maven { url "https://mvnrepository.com/artifact/com.google.code.gson/gson" }
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")

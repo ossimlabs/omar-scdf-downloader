@@ -17,6 +17,14 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata
+import com.amazonaws.services.s3.model.GetObjectRequest
 
 /**
  * Created by adrake on 5/31/2017
@@ -36,6 +44,15 @@ class OmarScdfDownloaderApplication {
 	 */
 	@Value('${filepath}')
 	String filepath
+
+	@Value('${cloud.aws.credentials.accessKey')
+	String accessKey
+
+	@Value('${cloud.aws.credentials.secretKey')
+	String secretKey
+
+	AmazonS3Client s3Client = new AmazonS3Client(accessKey, secretKey)
+
 
 	/**
 	 * ResouceLoader used to access the s3 bucket objects
@@ -64,7 +81,7 @@ class OmarScdfDownloaderApplication {
 	 * @return a JSON message of the files, and bucket that need to be downloaded
 	 */
 	@StreamListener(Processor.INPUT) @SendTo(Processor.OUTPUT)
-	String transform(Message<?> message){
+	String download(Message<?> message){
 
 		if(logger.isDebugEnabled()){
 			logger.debug("Message received: ${message}")
@@ -73,74 +90,34 @@ class OmarScdfDownloaderApplication {
 		final def parsedJson = new JsonSlurper().parseText(message.payload)
 		String s3Bucket
 		String s3Filename
+		String files = new String [parsedJson.files];
+
 		// Loop through each received JSON file and download
 		for(int i = 0; i < parsedJson.files; i++) {
 			s3Bucket = parsedJson.files[i].bucket
 			s3Filename = parsedJson.files[i].filename
+			files[i] = s3Filename
+			File localFile = new File(filepath+s3Filename);
+			ObjectMetadata object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile);
 
-				String keyName = "/"+"";
-
-				AmazonS3 s3Client = new AmazonS3Client(new PropertiesCredentials(
-						DownloadUploadedFile.class
-								.getResourceAsStream("AwsCredentials.properties")));
-
-				GetObjectRequest request = new GetObjectRequest(s3Bucket,
-						keyName);
-				S3Object object = s3Client.getObject(request);
-				S3ObjectInputStream objectContent = object.getObjectContent();
-				IOUtils.copy(objectContent, new FileOutputStream("D://upload//test.jpg"));
 		}
 
+    //    JsonBuilder filesDownloaded
 
-
-        JsonBuilder filesToDownload
-
-        def fileNameFromMessage = fileFromJson[0..fileFromJson.lastIndexOf('.') - 1]
-		def fileExtensionFromMessage = fileFromJson[fileFromJson.lastIndexOf('.')..fileFromJson.length() - 1]
+		// Create a new instance of Gson
+//		Gson filesDownloaded = new Gson();
 
 		if(logger.isDebugEnabled()){
-			logger.debug("\n-- Parsed Message --\nfileName: ${fileNameFromMessage} \nfileExtension: ${fileExtensionFromMessage}\nbucketName: ${bucketName}\n")
+			logger.debug("\n-- files: ${files} \n")
 		}
 
-		// TODO:
-		// This assumes we will always be looking for two files with the aggregator.  Should
-		// we make it so that we can also look for one, or maybe three???
-		if (fileExtension1 == fileExtensionFromMessage) {
+//		String filesDownloadedString = filesDownloaded.toJson(days);
 
-			// Looks for the associated file.  Example: .txt
-            def fileToLookFor = "${fileNameFromMessage}${fileExtension2}"
 
-			def s3Uri = "s3://${bucketName}/${fileToLookFor}"
-
-			Resource s3FileResource = this.resourcePatternResolver.getResource(s3Uri)
-
-			if(s3FileResource.exists()){
-                // The other file exists! Put both files in a JSON array to send to next processor
-
-                filesToDownload = new JsonBuilder()
-
-                // TODO: make this build an array of N files to download
-                filesToDownload.files{
-                    [{
-                        bucket bucketName
-                        filename "${fileNameFromMessage}${fileExtension1}"
-                    },
-                    {
-                        bucket bucketName
-                        filename "${fileNameFromMessage}${fileExtension2}"
-                    }]
-                }
-			} else {
-				logger.warn("""
-					Received notification for file that does not exist:
-					${s3FileResource.filename}
-					""")
-			}
-		}
 
 		if(logger.isDebugEnabled()){
-			logger.debug("filesToDownload: ${filesToDownload}")
+			logger.debug("filesDownloaded: ${filesDownloaded}")
 		}
-		return filesToDownload.toString()
+		return filesDownloadedString()
 	}
 }
