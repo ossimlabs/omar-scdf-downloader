@@ -100,7 +100,7 @@ class OmarScdfDownloaderApplication {
 		final ArrayList<String> filesDownloaded = new ArrayList<String>()
 
 		System.out.println("secretkey" + secretKey + "\naccessKey" + accessKey + "\nfilepath")
-		s3Client = new AmazonS3Client(accessKey, secretKey)
+		s3Client = new AmazonS3Client(accessKey, secretKey, USEast1)
 
 
 		// Local storage vars for the json iteration
