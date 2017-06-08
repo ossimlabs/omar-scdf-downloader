@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.GetObjectRequest
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+
 
 /**
  * Created by  on 5/31/2017
@@ -100,7 +103,8 @@ class OmarScdfDownloaderApplication {
 		final ArrayList<String> filesDownloaded = new ArrayList<String>()
 
 		System.out.println("secretkey" + secretKey + "\naccessKey" + accessKey + "\nfilepath")
-		s3Client = new AmazonS3Client(accessKey, secretKey, USEast1)
+		BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey);
+		s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build();
 
 
 		// Local storage vars for the json iteration
