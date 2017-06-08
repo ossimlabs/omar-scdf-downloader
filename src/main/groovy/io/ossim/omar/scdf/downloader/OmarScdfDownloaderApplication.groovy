@@ -41,13 +41,13 @@ class OmarScdfDownloaderApplication {
 	/**
 	 * AWS access key
 	 */
-	@Value('${cloud.aws.credentials.accessKey')
+	@Value('${cloud.aws.credentials.accessKey}')
 	final String accessKey
 
 	/**
 	 * AWS secret key
 	 */
-	@Value('${cloud.aws.credentials.secretKey')
+	@Value('${cloud.aws.credentials.secretKey}')
 	final String secretKey
 
 	/**
@@ -59,6 +59,7 @@ class OmarScdfDownloaderApplication {
 	 * Constructor
 	 */
 	OmarScdfDownloaderApplication(){
+		System.out.println("secretkey" + secretKey + "\naccessKey" + accessKey + "\nfilepath")
 		s3Client = new AmazonS3Client(accessKey, secretKey)
 	}
 
