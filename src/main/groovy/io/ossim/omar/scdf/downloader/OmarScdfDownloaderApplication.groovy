@@ -36,31 +36,29 @@ class OmarScdfDownloaderApplication {
 	 * Filepath passed in from application.properties
 	 */
 	@Value('${filepath}')
-	final String filepath
+	String filepath
 
 	/**
 	 * AWS access key
 	 */
 	@Value('${cloud.aws.credentials.accessKey}')
-	final String accessKey
+	String accessKey
 
 	/**
 	 * AWS secret key
 	 */
 	@Value('${cloud.aws.credentials.secretKey}')
-	final String secretKey
+	String secretKey
 
 	/**
 	 * The client used to connect to S3 for downloading files
 	 */
-	final AmazonS3Client s3Client
+	AmazonS3Client s3Client
 
 	/**
 	 * Constructor
 	 */
 	OmarScdfDownloaderApplication(){
-		System.out.println("secretkey" + secretKey + "\naccessKey" + accessKey + "\nfilepath")
-		s3Client = new AmazonS3Client(accessKey, secretKey)
 	}
 
 	/**
@@ -100,6 +98,10 @@ class OmarScdfDownloaderApplication {
 
 		// The list of files successfully downloaded
 		final ArrayList<String> filesDownloaded = new ArrayList<String>()
+
+		System.out.println("secretkey" + secretKey + "\naccessKey" + accessKey + "\nfilepath")
+		s3Client = new AmazonS3Client(accessKey, secretKey)
+
 
 		// Local storage vars for the json iteration
 		String s3Bucket
