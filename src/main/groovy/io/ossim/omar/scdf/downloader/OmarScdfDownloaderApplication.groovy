@@ -134,14 +134,11 @@ class OmarScdfDownloaderApplication {
 
                 // Add the file to the list of successful downloads
                 filesDownloaded.add(s3Filename)
-            }/* catch (SdkClientException e) {
+            } catch (SdkClientException e) {
                 logger.error("Client error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
             } catch (AmazonServiceException e) {
                 logger.error("Amazon S3 service error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
-            } */
-			catch (Exception e) {
-				logger.error("error ", e)
-			}
+            }
         }
 
         // Create the output JSON
