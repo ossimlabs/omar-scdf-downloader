@@ -114,6 +114,7 @@ class OmarScdfDownloaderApplication {
 		String s3Filename
 		File localFile
 		ObjectMetadata object
+		int i = 0
 
 		// Loop through each received JSON file and download
 		parsedJson.files.each { file ->
@@ -128,7 +129,8 @@ class OmarScdfDownloaderApplication {
 			object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile);
 
 			// Add the file to the list of successful downloads
-			filesDownloaded = s3Filename
+			filesDownloaded[i] = s3Filename
+			i++
 		}
 
         JsonBuilder filesDownloadedJson = new JsonBuilder()
