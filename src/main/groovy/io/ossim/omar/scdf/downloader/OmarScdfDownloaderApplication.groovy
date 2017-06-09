@@ -1,5 +1,7 @@
 package io.ossim.omar.scdf.downloader
 
+import com.amazonaws.AmazonServiceException
+import com.amazonaws.SdkClientException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -15,13 +17,12 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.GetObjectRequest
 import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
 
 
 /**
@@ -32,115 +33,122 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 @EnableBinding(Processor.class)
 class OmarScdfDownloaderApplication {
 
-	/**
-	 * The application logger
-	 */
-	private final Logger logger = LoggerFactory.getLogger(this.getClass())
+    /**
+     * The application logger
+     */
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	/**
-	 * Filepath passed in from application.properties
-	 */
-	@Value('${filepath}')
-	String filepath
+    /**
+     * Filepath passed in from application.properties
+     */
+    @Value('${filepath}')
+    String filepath
 
-	/**
-	 * AWS access key
-	 */
-	@Value('${cloud.aws.credentials.accessKey}')
-	String accessKey
+    /**
+     * AWS access key
+     */
+    @Value('${cloud.aws.credentials.accessKey}')
+    String accessKey
 
-	/**
-	 * AWS secret key
-	 */
-	@Value('${cloud.aws.credentials.secretKey}')
-	String secretKey
+    /**
+     * AWS secret key
+     */
+    @Value('${cloud.aws.credentials.secretKey}')
+    String secretKey
 
-	/**
-	 * The client used to connect to S3 for downloading files
-	 */
-	AmazonS3Client s3Client
+    /**
+     * The client used to connect to S3 for downloading files
+     */
+    AmazonS3Client s3Client
 
-	/**
-	 * Constructor
-	 */
-	OmarScdfDownloaderApplication(){
-	}
+    /**
+     * Constructor
+     */
+    OmarScdfDownloaderApplication() {
+    }
 
-	/**
-	 * ResouceLoader used to access the s3 bucket objects
-	 */
-	@Autowired
-	private ResourceLoader resourceLoader
+    /**
+     * ResouceLoader used to access the s3 bucket objects
+     */
+    @Autowired
+    private ResourceLoader resourceLoader
 
-	/**
-	 * Provides a URI for the s3
-	 */
-	@Autowired
-	private ResourcePatternResolver resourcePatternResolver
+    /**
+     * Provides a URI for the s3
+     */
+    @Autowired
+    private ResourcePatternResolver resourcePatternResolver
 
-	/**
-	 * The main entry point of the SCDF Downloader application.
-	 * @param args
-	 */
-	static void main(String[] args) {
-		SpringApplication.run OmarScdfDownloaderApplication, args
-	}
+    /**
+     * The main entry point of the SCDF Downloader application.
+     * @param args
+     */
+    static void main(String[] args) {
+        SpringApplication.run OmarScdfDownloaderApplication, args
+    }
 
-	/**
-	 * Receives a message from the SCDF aggregator, downloads the files in the message
-	 * and puts them in the filepath on the SCDF server
-	 * @param message The message object from the SCDF aggregrator (in JSON)
-	 * @return a JSON message of the files downloaded
-	 */
-	@StreamListener(Processor.INPUT) @SendTo(Processor.OUTPUT)
-	final String download(final Message<?> message){
+    /**
+     * Receives a message from the SCDF aggregator, downloads the files in the message
+     * and puts them in the filepath on the SCDF server
+     * @param message The message object from the SCDF aggregrator (in JSON)
+     * @return a JSON message of the files downloaded
+     */
+    @StreamListener(Processor.INPUT)
+    @SendTo(Processor.OUTPUT)
+    final String download(final Message<?> message) {
 
-		if(logger.isDebugEnabled()){
-			logger.debug("Message received: ${message}")
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("Message received: ${message}")
+        }
 
-		final def parsedJson = new JsonSlurper().parseText(message.payload)
+        final def parsedJson = new JsonSlurper().parseText(message.payload)
 
-		// The list of files successfully downloaded
-		final ArrayList<String> filesDownloaded = new ArrayList<String>()
+        // The list of files successfully downloaded
+        final ArrayList<String> filesDownloaded = new ArrayList<String>()
 
-		System.out.println("secretkey" + secretKey + "\naccessKey" + accessKey + "\nfilepath")
-		BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey);
-		s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build();
+        final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
+        s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
 
+        // Local storage vars for the json iteration
+        String s3Bucket
+        String s3Filename
+        File localFile
+        ObjectMetadata object
 
-		// Local storage vars for the json iteration
-		String s3Bucket
-		String s3Filename
-		File localFile
-		ObjectMetadata object
-		int i = 0
+        // Loop through each received JSON file and download
+        parsedJson.files.each { file ->
 
-		// Loop through each received JSON file and download
-		parsedJson.files.each { file ->
+            s3Bucket = file.bucket
+            s3Filename = file.filename
 
-			s3Bucket = file.bucket
-			s3Filename = file.filename
+            // Create the file handle
+            localFile = new File(filepath + s3Filename)
 
-			// Create the file handle
-			localFile = new File(filepath+s3Filename)
+            if (logger.isDebugEnabled()) {
+                logger.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
+            }
 
-			// Download the file from S3
-			object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile);
+            try {
+                // Download the file from S3
+                object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile)
 
-			// Add the file to the list of successful downloads
-			filesDownloaded[i] = s3Filename
-			i++
-		}
+                // Add the file to the list of successful downloads
+                filesDownloaded.add(s3Filename)
+            } catch (SdkClientException e) {
+                logger.error("Client error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
+            } catch (AmazonServiceException e) {
+                logger.error("Amazon S3 service error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
+            }
+        }
 
-        JsonBuilder filesDownloadedJson = new JsonBuilder()
+        // Create the output JSON
+        final JsonBuilder filesDownloadedJson = new JsonBuilder()
+        filesDownloadedJson(files: filesDownloaded)
 
-		filesDownloadedJson(files: filesDownloaded)
+        if (logger.isDebugEnabled()) {
+            logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
+        }
 
-		if(logger.isDebugEnabled()){
-			logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
-		}
-
-		return filesDownloadedJson.toString()
-	}
+        return filesDownloadedJson.toString()
+    }
 }
