@@ -101,6 +101,8 @@ class OmarScdfDownloaderApplication {
             logger.debug("Message received: ${message}")
         } */
 
+		 println "Message received: ${message}"
+
         final def parsedJson = new JsonSlurper().parseText(message.payload)
 
         // The list of files successfully downloaded
@@ -128,7 +130,10 @@ class OmarScdfDownloaderApplication {
                 logger.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
             } */
 
-            try {
+			println "Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath()
+
+
+			try {
                 // Download the file from S3
                 object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile)
 
@@ -149,7 +154,7 @@ class OmarScdfDownloaderApplication {
             logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
         } */
 
-		System.out.println(filesDownloadedJson: ${filesDownloadedJson});
+		print "filesDownloadedJson: ${filesDownloadedJson}"
 
         return filesDownloadedJson.toString()
     }
