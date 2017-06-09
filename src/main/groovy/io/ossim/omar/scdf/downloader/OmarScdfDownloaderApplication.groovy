@@ -149,6 +149,8 @@ class OmarScdfDownloaderApplication {
             logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
         } */
 
+		System.out.println(filesDownloadedJson: ${filesDownloadedJson});
+
         return filesDownloadedJson.toString()
     }
 }
