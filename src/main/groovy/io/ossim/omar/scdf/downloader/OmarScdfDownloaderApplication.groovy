@@ -36,7 +36,7 @@ class OmarScdfDownloaderApplication {
     /**
      * The application logger
      */
-    private final Logger logger = LoggerFactory.getLogger(this.getClass())
+    private Logger logger = LoggerFactory.getLogger(this.getClass())
 
     /**
      * Filepath passed in from application.properties
