@@ -86,14 +86,16 @@ class OmarScdfDownloaderApplication {
     @SendTo(Processor.OUTPUT)
     final String download(final Message<?> message) {
 
+		println "got here\n"
+		println logger.isDebugEnabled()
 		if (logger.isDebugEnabled()) {
             logger.debug("Message received: ${message}")
         }
 
-		println "Message received: ${message}"
 
 		if (null != message.payload)  {
 
+			println "not null\n"
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
 
 			// The list of files successfully downloaded
@@ -108,6 +110,8 @@ class OmarScdfDownloaderApplication {
 			File localFile
 			ObjectMetadata object
 
+			println "parsedJson\n"
+			println parsedJson
 			// Loop through each received JSON file and download
 			parsedJson.files.each { file ->
 
@@ -116,8 +120,6 @@ class OmarScdfDownloaderApplication {
 
 				// Create the file handle
 				localFile = new File(filepath + s3Filename)
-
-				println "Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath()
 
 
 				if (logger.isDebugEnabled()) {
@@ -145,9 +147,7 @@ class OmarScdfDownloaderApplication {
             logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
         }
 
-			print "filesDownloadedJson: ${filesDownloadedJson}"
-
-			return filesDownloadedJson.toString()
+		return filesDownloadedJson.toString()
 		}
 	}
 }
