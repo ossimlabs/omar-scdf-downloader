@@ -101,6 +101,7 @@ class OmarScdfDownloaderApplication {
             logger.debug("Message received: ${message}")
         } */
 
+		println "Got here\n"
 		 println "Message received: ${message}"
 
         final def parsedJson = new JsonSlurper().parseText(message.payload)
