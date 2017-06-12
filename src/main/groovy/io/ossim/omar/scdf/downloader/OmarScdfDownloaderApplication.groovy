@@ -90,12 +90,14 @@ class OmarScdfDownloaderApplication {
 		println logger.isDebugEnabled()
 		if (logger.isDebugEnabled()) {
             logger.debug("Message received: ${message}")
-        }
+			logger.debug("Message payload: ${message.payload}\n")
+			logger.debug(message.payload)
+
+		}
 
 
 		if (null != message.payload)  {
 
-			println "not null\n"
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
 
 			// The list of files successfully downloaded
