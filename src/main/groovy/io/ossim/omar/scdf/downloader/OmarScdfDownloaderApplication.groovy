@@ -36,7 +36,7 @@ class OmarScdfDownloaderApplication {
     /**
      * The application logger
      */
- //   private Logger logger = LoggerFactory.getLogger(this.getClass())
+    private Logger logger = LoggerFactory.getLogger(this.getClass())
 
     /**
      * Filepath passed in from application.properties
@@ -86,11 +86,10 @@ class OmarScdfDownloaderApplication {
     @SendTo(Processor.OUTPUT)
     final String download(final Message<?> message) {
 
-		/*    if (logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {
             logger.debug("Message received: ${message}")
-        } */
+        }
 
-		println "Got here\n"
 		println "Message received: ${message}"
 
 		if (null != message.payload)  {
@@ -118,12 +117,12 @@ class OmarScdfDownloaderApplication {
 				// Create the file handle
 				localFile = new File(filepath + s3Filename)
 
-				/*       if (logger.isDebugEnabled()) {
-                logger.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
-            } */
-
 				println "Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath()
 
+
+				if (logger.isDebugEnabled()) {
+					logger.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
+				}
 
 				try {
 					// Download the file from S3
@@ -132,9 +131,9 @@ class OmarScdfDownloaderApplication {
 					// Add the file to the list of successful downloads
 					filesDownloaded.add(s3Filename)
 				} catch (SdkClientException e) {
-					//    logger.error("Client error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
+					    logger.error("Client error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
 				} catch (AmazonServiceException e) {
-					//    logger.error("Amazon S3 service error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
+					    logger.error("Amazon S3 service error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
 				}
 			}
 
@@ -142,9 +141,9 @@ class OmarScdfDownloaderApplication {
 			final JsonBuilder filesDownloadedJson = new JsonBuilder()
 			filesDownloadedJson(files: filesDownloaded)
 
-/*        if (logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
-        } */
+        }
 
 			print "filesDownloadedJson: ${filesDownloadedJson}"
 
