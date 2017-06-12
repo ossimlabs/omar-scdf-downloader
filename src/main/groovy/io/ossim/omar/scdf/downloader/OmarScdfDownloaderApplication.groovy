@@ -67,17 +67,6 @@ class OmarScdfDownloaderApplication {
     OmarScdfDownloaderApplication() {
     }
 
-    /**
-     * ResouceLoader used to access the s3 bucket objects
-     */
-    @Autowired
-    private ResourceLoader resourceLoader
-
-    /**
-     * Provides a URI for the s3
-     */
-    @Autowired
-    private ResourcePatternResolver resourcePatternResolver
 
     /**
      * The main entry point of the SCDF Downloader application.
