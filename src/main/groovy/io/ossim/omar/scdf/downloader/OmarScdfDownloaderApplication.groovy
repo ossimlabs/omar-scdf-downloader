@@ -94,61 +94,60 @@ class OmarScdfDownloaderApplication {
 
 		try {
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
+
+
+			// The list of files successfully downloaded
+			final ArrayList<String> filesDownloaded = new ArrayList<String>()
+
+			final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
+			s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
+
+			// Local storage vars for the json iteration
+			String s3Bucket
+			String s3Filename
+			File localFile
+			ObjectMetadata object
+
+			println "parsedJson\n"
+			println parsedJson
+			// Loop through each received JSON file and download
+			parsedJson.files.each
+			{ file ->
+				s3Bucket = file.bucket
+				s3Filename = file.filename
+
+				// Create the file handle
+				localFile = new File(filepath + s3Filename)
+
+				if (logger.isDebugEnabled()) {
+					logger.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
+				}
+
+				try {
+					// Download the file from S3
+					object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile)
+					// Add the file to the list of successful downloads
+					filesDownloaded.add(s3Filename)
+				} catch (SdkClientException e) {
+			    	logger.error("Client error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
+				} catch (AmazonServiceException e) {
+			   	 logger.error("Amazon S3 service error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
+				}
+			}
+
+			// Create the output JSON
+			final JsonBuilder filesDownloadedJson = new JsonBuilder()
+			filesDownloadedJson(files: filesDownloaded)
+
+			if (logger.isDebugEnabled()) {
+				logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
+			}
+			return filesDownloadedJson.toString()
+
 		}
 
-		catch(Exception exception)
-		{
+		catch(Exception exception) {
 			logger.debug("Invalid filename")
 		}
-
-
-		// The list of files successfully downloaded
-		final ArrayList<String> filesDownloaded = new ArrayList<String>()
-
-		final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
-		s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
-
-		// Local storage vars for the json iteration
-		String s3Bucket
-		String s3Filename
-		File localFile
-		ObjectMetadata object
-
-		println "parsedJson\n"
-		println parsedJson
-		// Loop through each received JSON file and download
-		parsedJson.files.each { file ->
-
-		s3Bucket = file.bucket
-		s3Filename = file.filename
-
-		// Create the file handle
-		localFile = new File(filepath + s3Filename)
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
-		}
-
-		try {
-			// Download the file from S3
-			object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile)
-			// Add the file to the list of successful downloads
-			filesDownloaded.add(s3Filename)
-			} catch (SdkClientException e) {
-			    logger.error("Client error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
-			} catch (AmazonServiceException e) {
-			    logger.error("Amazon S3 service error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
-			}
-		}
-
-		// Create the output JSON
-		final JsonBuilder filesDownloadedJson = new JsonBuilder()
-		filesDownloadedJson(files: filesDownloaded)
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
-        }
-
-		return filesDownloadedJson.toString()
 	}
 }
