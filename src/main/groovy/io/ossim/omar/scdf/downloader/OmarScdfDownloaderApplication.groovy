@@ -92,7 +92,7 @@ class OmarScdfDownloaderApplication {
 
 		}
 
-		try {
+		if(message.payload) {
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
 
 
@@ -142,10 +142,6 @@ class OmarScdfDownloaderApplication {
 			}
 			return filesDownloadedJson.toString()
 
-		}
-
-		catch(Exception exception) {
-			logger.error("caught exception\n", exception)
 		}
 	}
 }
