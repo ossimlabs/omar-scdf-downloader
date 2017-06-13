@@ -85,9 +85,6 @@ class OmarScdfDownloaderApplication {
     @StreamListener(Processor.INPUT)
     @SendTo(Processor.OUTPUT)
     final String download(final Message<?> message) {
-
-		println "got here\n"
-		println logger.isDebugEnabled()
 		if (logger.isDebugEnabled()) {
             logger.debug("Message received: ${message}")
 			logger.debug("Message payload: ${message.payload}\n")
@@ -95,10 +92,15 @@ class OmarScdfDownloaderApplication {
 
 		}
 
-
-		if (null != message.payload)  {
-
+		try {
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
+		}
+
+		catch(Exception exception)
+		{
+			logger.debug("Invalid filename")
+		}
+
 
 			// The list of files successfully downloaded
 			final ArrayList<String> filesDownloaded = new ArrayList<String>()
