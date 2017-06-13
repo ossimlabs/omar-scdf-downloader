@@ -36,7 +36,7 @@ class OmarScdfDownloaderApplication {
     /**
      * The application logger
      */
-    private Logger logger = LoggerFactory.getLogger(this.getClass())
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
     /**
      * Filepath passed in from application.properties
@@ -89,11 +89,17 @@ class OmarScdfDownloaderApplication {
             logger.debug("Message received: ${message}")
 			logger.debug("Message payload: ${message.payload}\n")
 			logger.debug("Message length: ${message.payload.length()}")
-			logger.debug(message.payload)
 		}
 
-		if("null" != message.payload) {
+		def x = message.payload.equals( "null")
+		logger.debug("x: ${x} \n")
+
+
+		if ( !x ) {
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
+
+			logger.debug("got inside if")
+
 
 
 			// The list of files successfully downloaded
