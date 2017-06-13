@@ -108,8 +108,6 @@ class OmarScdfDownloaderApplication {
 			File localFile
 			ObjectMetadata object
 
-			println "parsedJson\n"
-			println parsedJson
 			// Loop through each received JSON file and download
 			parsedJson.files.each
 			{ file ->
@@ -147,7 +145,7 @@ class OmarScdfDownloaderApplication {
 		}
 
 		catch(Exception exception) {
-			logger.debug("Invalid filename")
+			logger.error("caught exception\n", e)
 		}
 	}
 }
