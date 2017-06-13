@@ -88,11 +88,11 @@ class OmarScdfDownloaderApplication {
 		if (logger.isDebugEnabled()) {
             logger.debug("Message received: ${message}")
 			logger.debug("Message payload: ${message.payload}\n")
+			logger.debug("Message length: ${message.payload.length()}")
 			logger.debug(message.payload)
-
 		}
 
-		if(message.payload) {
+		if((null != message.payload) || (message.payload.length() != 0)) {
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
 
 
