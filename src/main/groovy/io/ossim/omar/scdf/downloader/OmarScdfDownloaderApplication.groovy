@@ -98,16 +98,19 @@ class OmarScdfDownloaderApplication {
 		if ( !x ) {
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
 
-			logger.debug("got inside if")
+			logger.debug("parsedJson: ${parsedJson}\n")
 
 
 
 			// The list of files successfully downloaded
 			final ArrayList<String> filesDownloaded = new ArrayList<String>()
 
+			logger.debug("got before creds")
+
 			final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
 			s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
 
+			logger.debug("got after creds")
 			// Local storage vars for the json iteration
 			String s3Bucket
 			String s3Filename
@@ -115,8 +118,8 @@ class OmarScdfDownloaderApplication {
 			ObjectMetadata object
 
 			// Loop through each received JSON file and download
-			parsedJson.files.each
-			{ file ->
+			parsedJson.files.each { file ->
+				logger.debug("got inside for")
 				s3Bucket = file.bucket
 				s3Filename = file.filename
 
