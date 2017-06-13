@@ -145,7 +145,7 @@ class OmarScdfDownloaderApplication {
 		}
 
 		catch(Exception exception) {
-			logger.error("caught exception\n", e)
+			logger.error("caught exception\n", exception)
 		}
 	}
 }
