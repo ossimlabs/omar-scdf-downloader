@@ -85,16 +85,15 @@ class OmarScdfDownloaderApplication {
     @StreamListener(Processor.INPUT)
     @SendTo(Processor.OUTPUT)
     final String download(final Message<?> message) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Message payload: ${message.payload}\n")
-		}
+
+		println "Message payload: ${message.payload}\n"
 
 		def x = message.payload.equals( "null")
-		logger.debug("x: ${x} \n")
+		println "x: ${x} \n"
 
 
 		if ( !x ) {
-			final def parsedJson = new JsonSlurper().parseText(message.payload)
+			def parsedJson = new JsonSlurper().parseText(message.payload)
 
 			// The list of files successfully downloaded
 			final ArrayList<String> filesDownloaded = new ArrayList<String>()
@@ -104,30 +103,25 @@ class OmarScdfDownloaderApplication {
 
 			int i
 
+			println "parsedJson.files.length" + parsedJson.files.length
 			for(i=0;i<parsedJson.files.length;i++ )
 			{
-				if (logger.isDebugEnabled()) {
-					logger.debug("Attempting to download file: ${parsedJson.files[i].filename.toString()} from bucket: ${parsedJson.files[i].bucket.toString()} to location: " + localFile.getAbsolutePath())
-				}
-
 				try {
 					// Download the file from S3
 					s3Client.getObject(new GetObjectRequest(parsedJson.files[i].bucket.toString(), parsedJson.files[i].filename.toString()), localFile)
 					// Add the file to the list of successful downloads
 					filesDownloaded.add(parsedJson.files[i].filename.toString())
 				} catch (SdkClientException e) {
-					logger.error("Client error while attempting to download file: ${parsedJson.files[i].filename.toString()} from bucket: ${parsedJson.files[i].bucket.toString()}", e)
+					println "sdkclientexception"
 				} catch (AmazonServiceException e) {
-					logger.error("Amazon S3 service error while attempting to download file: ${parsedJson.files[i].filename.toString()} from bucket: ${parsedJson.files[i].bucket.toString()}", e)
+					println "amazonservice exception"
 				}
 			}
 
 		}
 
-
-
 		// Create the output JSON
-		final JsonBuilder filesDownloadedJson = new JsonBuilder()
+		JsonBuilder filesDownloadedJson = new JsonBuilder()
 		filesDownloadedJson(files: filesDownloaded)
 		if (logger.isDebugEnabled()) {
 			logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
