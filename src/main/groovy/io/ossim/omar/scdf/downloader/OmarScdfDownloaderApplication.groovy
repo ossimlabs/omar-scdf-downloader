@@ -91,13 +91,13 @@ class OmarScdfDownloaderApplication {
 		def x = message.payload.equals( "null")
 		// Create the output JSON
 		JsonBuilder filesDownloadedJson = new JsonBuilder()
+		// The list of files successfully downloaded
+		final ArrayList<String> filesDownloaded = new ArrayList<String>()
 
 
 		if ( !x ) {
 			def parsedJson = new JsonSlurper().parseText(message.payload)
 
-			// The list of files successfully downloaded
-			final ArrayList<String> filesDownloaded = new ArrayList<String>()
 
 			final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
 			s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
