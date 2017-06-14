@@ -103,17 +103,16 @@ class OmarScdfDownloaderApplication {
 
 			int i
 
-			println "parsedJson.length" + parsedJson.length
-			println "parsedJson.files.length" + parsedJson.files.length
-			println "parsedJson.files.size()" + parsedJson.files.size()
-			println "parsedJson..size()" + parsedJson.size()
 
+			println "parsedJson.files.size()" + parsedJson.files.size()
 			for(i=0;i<parsedJson.files.size();i++ )
 			{
 				try {
 					// Download the file from S3
 					s3Client.getObject(new GetObjectRequest(parsedJson.files[i].bucket.toString(), parsedJson.files[i].filename.toString()), localFile)
 					// Add the file to the list of successful downloads
+					println "parsedJson.files[" + i + "].bucket.toString()" + parsedJson.files[i].bucket.toString()
+					println "parsedJson.files[" + i + "].filename.toString()" + parsedJson.files[i].filename.toString()
 					filesDownloaded.add(parsedJson.files[i].filename.toString())
 				} catch (SdkClientException e) {
 					println "sdkclientexception"
