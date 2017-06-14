@@ -103,8 +103,12 @@ class OmarScdfDownloaderApplication {
 
 			int i
 
+			println "parsedJson.length" + parsedJson.length
 			println "parsedJson.files.length" + parsedJson.files.length
-			for(i=0;i<parsedJson.files.length;i++ )
+			println "parsedJson.files.size()" + parsedJson.files.size()
+			println "parsedJson..size()" + parsedJson.size()
+
+			for(i=0;i<parsedJson.files.size();i++ )
 			{
 				try {
 					// Download the file from S3
