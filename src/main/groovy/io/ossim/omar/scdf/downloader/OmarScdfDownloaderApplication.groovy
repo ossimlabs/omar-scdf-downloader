@@ -86,10 +86,11 @@ class OmarScdfDownloaderApplication {
     @SendTo(Processor.OUTPUT)
     final String download(final Message<?> message) {
 
-		println "Message payload: ${message.payload}\n"
+		logger.debug("Message payload: ${message.payload}\n")
 
 		def x = message.payload.equals( "null")
-		println "x: ${x} \n"
+		// Create the output JSON
+		JsonBuilder filesDownloadedJson = new JsonBuilder()
 
 
 		if ( !x ) {
@@ -103,15 +104,10 @@ class OmarScdfDownloaderApplication {
 
 			int i
 
-
 			for(i=0;i<parsedJson.files.size();i++ )
 			{
-				println "parsedJson.files.size()" + parsedJson.files.size()
 				try {
 					// Download the file from S3
-					println "got to try"
-					println "bucket i = " + i + " " + parsedJson.files[i].bucket.toString()
-					println "file i = " + i + " " + parsedJson.files[i].filename.toString()
 					File localFile = new File(filepath + parsedJson.files[i].filename.toString())
 					s3Client.getObject(new GetObjectRequest(parsedJson.files[i].bucket.toString(), parsedJson.files[i].filename.toString()), localFile)
 					// Add the file to the list of successful downloads
@@ -119,18 +115,16 @@ class OmarScdfDownloaderApplication {
 					println "parsedJson.files[" + i + "].filename.toString()" + parsedJson.files[i].filename.toString()
 					filesDownloaded.add(parsedJson.files[i].filename.toString())
 				} catch (SdkClientException e) {
-					println "sdkclientexception"
+					logger.error("SdkClientException" + e)
 				} catch (AmazonServiceException e) {
-					println "amazonservice exception"
+					logger.error("AmazonServiceException" + e)
 				} catch (Exception e) {
-					println "exception" + e
+					logger.error("exception" + e)
 				}
 			}
 
 		}
 
-		// Create the output JSON
-		JsonBuilder filesDownloadedJson = new JsonBuilder()
 		filesDownloadedJson(files: filesDownloaded)
 		if (logger.isDebugEnabled()) {
 			logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
