@@ -112,7 +112,7 @@ class OmarScdfDownloaderApplication {
 					println "got to try"
 					println "bucket i = " + i + " " + parsedJson.files[i].bucket.toString()
 					println "file i = " + i + " " + parsedJson.files[i].filename.toString()
-					File file = new File(filepath + parsedJson.files[i].filename.toString())
+					File localFile = new File(filepath + parsedJson.files[i].filename.toString())
 					s3Client.getObject(new GetObjectRequest(parsedJson.files[i].bucket.toString(), parsedJson.files[i].filename.toString()), localFile)
 					// Add the file to the list of successful downloads
 					println "parsedJson.files[" + i + "].bucket.toString()" + parsedJson.files[i].bucket.toString()
