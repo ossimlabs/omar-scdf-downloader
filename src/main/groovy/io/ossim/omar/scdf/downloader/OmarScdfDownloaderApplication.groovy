@@ -86,9 +86,7 @@ class OmarScdfDownloaderApplication {
     @SendTo(Processor.OUTPUT)
     final String download(final Message<?> message) {
 		if (logger.isDebugEnabled()) {
-            logger.debug("Message received: ${message}")
 			logger.debug("Message payload: ${message.payload}\n")
-			logger.debug("Message length: ${message.payload.length()}")
 		}
 
 		def x = message.payload.equals( "null")
@@ -98,33 +96,24 @@ class OmarScdfDownloaderApplication {
 		if ( !x ) {
 			final def parsedJson = new JsonSlurper().parseText(message.payload)
 
-			logger.debug("parsedJson: ${parsedJson}\n")
-
-
-
 			// The list of files successfully downloaded
 			final ArrayList<String> filesDownloaded = new ArrayList<String>()
-
-			logger.debug("got before creds")
 
 			final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
 			s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
 
-			logger.debug("got after creds")
-			// Local storage vars for the json iteration
-			String s3Bucket
-			String s3Filename
-			File localFile
-			ObjectMetadata object
+			logger.debug("parsedJson.files: ${parsedJson.files[0]}\n")
+			logger.debug("parsedJson: ${parsedJson}\n")
 
-			// Loop through each received JSON file and download
-			parsedJson.files.each { file ->
+			parsedJson.files.each { file->
+
+				String s3Bucket = file.bucket.toString()
+				String s3Filename = file.filename
+
 				logger.debug("got inside for")
-				s3Bucket = file.bucket
-				s3Filename = file.filename
 
 				// Create the file handle
-				localFile = new File(filepath + s3Filename)
+				File localFile = new File(filepath + s3Filename)
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
@@ -132,7 +121,7 @@ class OmarScdfDownloaderApplication {
 
 				try {
 					// Download the file from S3
-					object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile)
+					s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile)
 					// Add the file to the list of successful downloads
 					filesDownloaded.add(s3Filename)
 				} catch (SdkClientException e) {
