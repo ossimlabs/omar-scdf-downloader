@@ -102,44 +102,36 @@ class OmarScdfDownloaderApplication {
 			final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
 			s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
 
-			logger.debug("parsedJson.files: ${parsedJson.files[0]}\n")
-			logger.debug("parsedJson: ${parsedJson}\n")
+			int i
 
-			parsedJson.files.each { file->
-
-				String s3Bucket = file.bucket.toString()
-				String s3Filename = file.filename
-
-				logger.debug("got inside for")
-
-				// Create the file handle
-				File localFile = new File(filepath + s3Filename)
-
+			for(i=0;i<parsedJson.files.length;i++ )
+			{
 				if (logger.isDebugEnabled()) {
-					logger.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
+					logger.debug("Attempting to download file: ${parsedJson.files[i].filename.toString()} from bucket: ${parsedJson.files[i].bucket.toString()} to location: " + localFile.getAbsolutePath())
 				}
 
 				try {
 					// Download the file from S3
-					s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile)
+					s3Client.getObject(new GetObjectRequest(parsedJson.files[i].bucket.toString(), parsedJson.files[i].filename.toString()), localFile)
 					// Add the file to the list of successful downloads
-					filesDownloaded.add(s3Filename)
+					filesDownloaded.add(parsedJson.files[i].filename.toString())
 				} catch (SdkClientException e) {
-			    	logger.error("Client error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
+					logger.error("Client error while attempting to download file: ${parsedJson.files[i].filename.toString()} from bucket: ${parsedJson.files[i].bucket.toString()}", e)
 				} catch (AmazonServiceException e) {
-			   	 logger.error("Amazon S3 service error while attempting to download file: ${s3Filename} from bucket: ${s3Bucket}", e)
+					logger.error("Amazon S3 service error while attempting to download file: ${parsedJson.files[i].filename.toString()} from bucket: ${parsedJson.files[i].bucket.toString()}", e)
 				}
 			}
 
-			// Create the output JSON
-			final JsonBuilder filesDownloadedJson = new JsonBuilder()
-			filesDownloadedJson(files: filesDownloaded)
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
-			}
-			return filesDownloadedJson.toString()
-
 		}
+
+
+
+		// Create the output JSON
+		final JsonBuilder filesDownloadedJson = new JsonBuilder()
+		filesDownloadedJson(files: filesDownloaded)
+		if (logger.isDebugEnabled()) {
+			logger.debug("filesDownloadedJson: ${filesDownloadedJson}")
+		}
+		return filesDownloadedJson.toString()
 	}
 }
