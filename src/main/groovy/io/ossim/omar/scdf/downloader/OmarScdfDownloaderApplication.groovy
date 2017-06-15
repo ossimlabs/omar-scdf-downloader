@@ -20,6 +20,10 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.text.SimpleDateFormat
+
 /**
  * Created by  on 5/31/2017
  */
@@ -82,6 +86,17 @@ class OmarScdfDownloaderApplication
 			final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
 			s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
 
+			String timeStamp = new SimpleDateFormat("yyyyMMddHH").format(Calendar.getInstance().getTime())
+			String year = timeStamp.substring(0, 4)
+			String month = timeStamp.substring(4,6)
+			String day = timeStamp.substring(6,8)
+			String hour = timeStamp.substring(8,10)
+			String directory = filepath + year + "/" + month + "/" + day + "/" + hour + "/"
+			if (Files.notExists(Paths.get(directory)))
+			{
+				Files.createDirectories(Paths.get(directory))
+			}
+
 			// Local storage vars for the json iteration
 			String s3Bucket
 			String s3Filename
@@ -95,7 +110,7 @@ class OmarScdfDownloaderApplication
 				s3Filename = file.filename
 
 				// Create the file handle
-				localFile = new File(filepath + s3Filename)
+				localFile = new File(directory + s3Filename)
 
 				log.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
 
