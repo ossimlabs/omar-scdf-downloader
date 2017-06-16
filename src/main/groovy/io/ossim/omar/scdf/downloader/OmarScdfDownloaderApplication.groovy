@@ -91,7 +91,7 @@ class OmarScdfDownloaderApplication
 			String month = timeStamp.substring(4,6)
 			String day = timeStamp.substring(6,8)
 			String hour = timeStamp.substring(8,10)
-			String directories = filepath + "/" + year + "/" + month + "/" + day + "/" + hour
+			String directories = filepath + "/" + year + "/" + month + "/" + day + "/" + hour + "/"
 			if (Files.notExists(Paths.get(directories)))
 			{
 				Files.createDirectories(Paths.get(directories))
