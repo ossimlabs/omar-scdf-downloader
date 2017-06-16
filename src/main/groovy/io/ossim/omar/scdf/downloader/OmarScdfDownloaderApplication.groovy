@@ -91,15 +91,16 @@ class OmarScdfDownloaderApplication
 			String month = timeStamp.substring(4,6)
 			String day = timeStamp.substring(6,8)
 			String hour = timeStamp.substring(8,10)
-			String directory = filepath + year + "/" + month + "/" + day + "/" + hour + "/"
-			if (Files.notExists(Paths.get(directory)))
+			String directories = filepath + "/" + year + "/" + month + "/" + day + "/" + hour
+			if (Files.notExists(Paths.get(directories)))
 			{
-				Files.createDirectories(Paths.get(directory))
+				Files.createDirectories(Paths.get(directories))
 			}
 
 			// Local storage vars for the json iteration
 			String s3Bucket
 			String s3Filename
+            String filenameWithDirectory
 			File localFile
 			ObjectMetadata object
 
@@ -108,9 +109,10 @@ class OmarScdfDownloaderApplication
 
 				s3Bucket = file.bucket
 				s3Filename = file.filename
+                filenameWithDirectory = "${directories}${s3Filename}"
 
 				// Create the file handle
-				localFile = new File(directory + s3Filename)
+				localFile = new File(filenameWithDirectory)
 
 				log.debug("Attempting to download file: ${s3Filename} from bucket: ${s3Bucket} to location: " + localFile.getAbsolutePath())
 
@@ -121,7 +123,7 @@ class OmarScdfDownloaderApplication
 					object = s3Client.getObject(new GetObjectRequest(s3Bucket, s3Filename), localFile)
 
 					// Add the file to the list of successful downloads
-					filesDownloaded.add(s3Filename)
+					filesDownloaded.add(filenameWithDirectory)
 				}
 				catch (SdkClientException e)
 				{
