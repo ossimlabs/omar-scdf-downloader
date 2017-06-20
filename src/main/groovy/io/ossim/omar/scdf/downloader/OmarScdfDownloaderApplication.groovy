@@ -3,6 +3,7 @@ package io.ossim.omar.scdf.downloader
 import groovy.util.logging.Slf4j
 import com.amazonaws.AmazonServiceException
 import com.amazonaws.SdkClientException
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -39,20 +40,9 @@ class OmarScdfDownloaderApplication
 	String filepath
 
 	/**
-	 * AWS access key
-	 */
-	@Value('${cloud.aws.credentials.accessKey}')
-	String accessKey
-
-	/**
-	 * AWS secret key
-	 */
-	@Value('${cloud.aws.credentials.secretKey}')
-	String secretKey
-
-	/**
 	 * The client used to connect to S3 for downloading files
 	 */
+    @Autowired
 	AmazonS3Client s3Client
 
 	/**
@@ -82,9 +72,6 @@ class OmarScdfDownloaderApplication
 
 			// The list of files successfully downloaded
 			final ArrayList<String> filesDownloaded = new ArrayList<String>()
-
-			final BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey)
-			s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).build()
 
 			String timeStamp = new SimpleDateFormat("yyyyMMddHH").format(Calendar.getInstance().getTime())
 			String year = timeStamp.substring(0, 4)
