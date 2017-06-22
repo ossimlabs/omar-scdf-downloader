@@ -28,7 +28,7 @@ The Downloader then sends a message to the Extractor with the list of files succ
 }
 ```
 
-## JSON Output Example (to the Downloader)
+## JSON Output Example (to the Extractor)
 ```json
 {
    "files":[
