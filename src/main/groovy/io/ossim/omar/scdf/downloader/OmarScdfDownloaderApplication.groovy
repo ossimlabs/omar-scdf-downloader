@@ -89,6 +89,7 @@ class OmarScdfDownloaderApplication
 			File localFile
 			ObjectMetadata object
 
+            String zipFileUrl = parsedJson.zipFileUrl
 			// Loop through each received JSON file and download
 			parsedJson.files.each { file ->
 
@@ -121,7 +122,7 @@ class OmarScdfDownloaderApplication
 
 			// Create the output JSON
 			final JsonBuilder filesDownloadedJson = new JsonBuilder()
-			filesDownloadedJson(files: filesDownloaded)
+			filesDownloadedJson(files: filesDownloaded, zipFileUrl: zipFileUrl)
 
 			log.debug("filesDownloadedJson: ${filesDownloadedJson}")
 
