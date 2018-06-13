@@ -1,0 +1,6 @@
+
+pluginRepositories {
+	maven { url "${ System.getenv('ARTIFACOTRY_URL') }/ossim-deps" }
+	gradlePluginPortal()
+}
+rootProject.name = 'omar-scdf-downloader'
