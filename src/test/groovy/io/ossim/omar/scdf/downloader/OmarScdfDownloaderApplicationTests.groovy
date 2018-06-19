@@ -1,4 +1,4 @@
-package io.ossim.omar.scdf.downloader
+/*package io.ossim.omar.scdf.downloader
 
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -14,3 +14,4 @@ class OmarScdfDownloaderApplicationTests {
 	}
 
 }
+*/
