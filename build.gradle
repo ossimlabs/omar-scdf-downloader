@@ -41,6 +41,10 @@ plugins {
   id "org.sonarqube" version "2.6.2"
 }
 
+plugins {
+  id "org.sonarqube" version "2.6.2"
+}
+
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
